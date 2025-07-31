@@ -20,8 +20,18 @@ public class Main {
         }
         JavaDict j = new JavaDict();
         // j.json_test();
-        j.put("sahana", "bhat");
-        j.put("hello", 5);
-        j.jsonToString();
+        j.put("working", false);
+        j.put("name", "sahana");
+        j.put("age", 22);
+        j.put("city", "bangalore");
+        j.put(2004, 2605);
+        
+        System.out.println(j.jsonToString(4));
+        
+        System.out.println("working : " + j.get("working"));
+        System.out.println("name : " + j.get("name"));
+        System.out.println("age : " + j.get("age"));
+        System.out.println("city : " + j.get("city"));
+        System.out.println("2004 : " + j.get(2004));
     }
 }

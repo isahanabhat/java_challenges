@@ -36,9 +36,13 @@ public class JavaDict {
     }
     
     public void put(Object key, Object value) {
-        jObject.put((String) key, value);
+        jObject.put(String.valueOf(key), value);
     }
-    public void jsonToString() {
-        System.out.println(jObject.toString(4));
+    public String jsonToString(int indent) {
+        return jObject.toString(indent);
+    }
+    public Object get(Object key) {
+        String key_str = String.valueOf(key);
+        return jObject.get(key_str);
     }
 }
