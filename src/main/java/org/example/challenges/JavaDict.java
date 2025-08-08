@@ -1,5 +1,8 @@
 package org.example.challenges;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,26 +26,66 @@ public class JavaDict {
         this.jObject = new JSONObject();
     }
     
+    public JavaDict(Object dict) {
+        // System.out.println("Inside javaDict class, dict = " + dict.toString() + " " + dict.getClass());
+        this.jObject = (JSONObject) dict;
+    }
+    
     public void json_test() {
         JSONObject jo = new JSONObject();
         jo.put("name", "jon doe");
         jo.put("age", "22");
         jo.put("city", 2);
-        System.out.println(jo.toString());
         jArray.put(Boolean.TRUE);
         jArray.put("lorem ipsum");
         jArray.put(jo);
-        System.out.println(jArray.toString(4));
     }
     
     public void put(Object key, Object value) {
         jObject.put(String.valueOf(key), value);
     }
+    
+    public void put(Object key, Object[] value) {
+        List<Object> l = Arrays.asList(value);
+        jObject.put(String.valueOf(key), new JSONArray(l));
+    }
+    
+    public void put(Object key, JavaDict value) {
+        //List<Object> l = Arrays.asList(value);
+        String v = value.jsonToString(0);
+        // System.out.println("Put in: " + v);
+        jObject.put(String.valueOf(key), v);
+    }
+    
     public String jsonToString(int indent) {
         return jObject.toString(indent);
     }
+    
     public Object get(Object key) {
         String key_str = String.valueOf(key);
-        return jObject.get(key_str);
+        Object val = jObject.get(key_str);
+        JSONObject ret_val;
+        try {
+            ret_val = new JSONObject(val); // this is converting ret_val to bytes since it has \
+            JSONArray byteArray = ret_val.getJSONArray("bytes"); 
+            
+            byte[] bytes = new byte[byteArray.length()];
+            for (int i = 0; i < byteArray.length(); i++) {
+                bytes[i] = (byte) byteArray.getInt(i);
+            }
+            
+            String jStr = new String(bytes, StandardCharsets.UTF_8);
+            
+            ret_val = new JSONObject(jStr);
+            // System.out.println("ret_val: " + ret_val.toString(2));
+            
+            
+        } catch (Exception e) {
+            System.out.println("EXCEPTION "+ e.getMessage());
+            return val;
+        }
+        return ret_val;
     }
+    
+    
 }
