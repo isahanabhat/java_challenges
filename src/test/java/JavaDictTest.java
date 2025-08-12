@@ -61,7 +61,6 @@ public class JavaDictTest {
         val.put("CSE", 93);
         j.put("12th marks", val);
         
-        // Object res = j.get("12th marks");
         JavaDict marks = new JavaDict(j.get("12th marks"));
         
         String r = "{\"Maths\":95,\"Chemistry\":95,\"CSE\":93}";

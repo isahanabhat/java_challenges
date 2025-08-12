@@ -51,9 +51,7 @@ public class JavaDict {
     }
     
     public void put(Object key, JavaDict value) {
-        //List<Object> l = Arrays.asList(value);
         String v = value.jsonToString(0);
-        // System.out.println("Put in: " + v);
         jObject.put(String.valueOf(key), v);
     }
     
@@ -75,13 +73,10 @@ public class JavaDict {
             }
             
             String jStr = new String(bytes, StandardCharsets.UTF_8);
-            
             ret_val = new JSONObject(jStr);
-            // System.out.println("ret_val: " + ret_val.toString(2));
-            
             
         } catch (Exception e) {
-            System.out.println("EXCEPTION "+ e.getMessage());
+            // System.out.println("EXCEPTION "+ e.getMessage());
             return val;
         }
         return ret_val;
