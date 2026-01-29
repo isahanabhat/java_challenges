@@ -10,7 +10,6 @@ import org.example.challenges.Curl;
 
 public class Main {
     public static void main(String[] args) throws UnknownHostException, IOException {
-        System.out.println("Hello World!\n");
         /*
         try {
             String host = "dns.google.com";
@@ -20,11 +19,14 @@ public class Main {
             System.out.println(e.getMessage());
         }
         */
-        String[] test_1 = {"cccurl", "http://eu.httpbin.org/get"};
-        String[] test_2 = {"cccurl", "http://eu.httpbin.org/get"};
-        String[] test_3 = {"cccurl", "-v", "http://eu.httpbin.org:80/delete"};
+        String[] test_1 = {"cc_curl", "http://eu.httpbin.org/get"};
+        String[] test_2 = {"cc_curl", "http://eu.httpbin.org/delete"};
+        String[] test_3 = {"cc_curl", "-v", "http://eu.httpbin.org:80/delete"};
         
-        Curl c1 = new Curl(test_3);
+        // curl -X PUT http://eu.httpbin.org/put -d "{\"key\": \"value2\"}" -H "Content-Type: application/json"
+        String[] test_4 = {"cc_curl", "-v", "http://eu.httpbin.org/post"};
+        
+        Curl c1 = new Curl(test_4);
         c1.parse_url();
         System.out.println();
         

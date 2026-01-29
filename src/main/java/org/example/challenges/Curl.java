@@ -8,6 +8,8 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Map;
+import org.json.JSONObject;
+
 
 /**
  *
@@ -49,10 +51,28 @@ public class Curl {
     
     public void parse_url() throws UnknownHostException, IOException {
         Socket s = new Socket(InetAddress.getByName(website), port);
+        
+        String req_string = req.toUpperCase() + " /" + req + " HTTP/1.1\r\n";
+        req_string += "Host: " + website + "\r\n";
+        
+        if (req.equals("post") || req.equals("put")) {
+            req_string += "Content-Type: application/json\r\n";
+            // test
+            String data;
+            
+            JSONObject data_json = new JSONObject();
+            data_json.put("key", "value");
+            data = data_json.toString(2);
+            req_string += "Content-Length: " + data.length() + "\r\n";
+            
+            req_string += "\n" + data + "\r\n";
+        }
+        
+        req_string += "Connection: close\r\n";
+        req_string += "\r\n"; // Empty line indicates end of request header
+        
         PrintWriter pw = new PrintWriter(s.getOutputStream());
-        pw.print("GET /" + req +  " HTTP/1.1\r\n");
-        pw.print("Host: "+ website +"\r\n");
-        pw.print("Connection: close\r\n\r\n");
+        pw.print(req_string);
         pw.flush();
         
         BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
