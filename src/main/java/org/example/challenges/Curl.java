@@ -16,63 +16,52 @@ import org.json.JSONObject;
  * @author bhats
  */
 public class Curl {
-    // cccurl http://eu.httpbin.org/get
-    public String[] test = {"cccurl", "http://eu.httpbin.org/get"};
-    
-    public String website;
-    public String req;
-    public String protocol;
     public int port = 80;
     public Boolean verbose = false;
+    public Socket s;
     
-    public Curl(String[] args) {
-        // temporary: assume verbose (-v) only comes in index 1
-        // next : implement org.apache.commons.cli.* for cmd parser
+    public Curl() {
         
-        int url_index = 1;
-        if (args[1].equals("-v")) {
-            this.verbose = true;
-            url_index = 2;
-        }
-        String[] url_parts = args[url_index].split("/");
-        
-        int n = url_parts.length;
-        this.website = url_parts[n-2];
-        this.req = url_parts[n-1];
-        this.protocol = url_parts[0];
-        
+    }
+    
+    public String get_url_base(String url) {
+        String[] url_parts = url.split("/");
+        String website = url_parts[url_parts.length - 2];
         String[] website_parts = website.split(":");
         
         if (website_parts.length == 2) {
             this.port = Integer.parseInt(website_parts[1]);
-            this.website = website_parts[0];
+            return website_parts[0];
         }
+        return website;
     }
     
-    public void parse_url() throws UnknownHostException, IOException {
-        Socket s = new Socket(InetAddress.getByName(website), port);
+    public String build_request(String req_type, String base) {
+        String req_string = req_type.toUpperCase() + " /" + req_type + " HTTP/1.1\r\n";
+        req_string += "Host: " + base + "\r\n";
         
-        String req_string = req.toUpperCase() + " /" + req + " HTTP/1.1\r\n";
-        req_string += "Host: " + website + "\r\n";
-        
-        if (req.equals("post") || req.equals("put")) {
+        if (req_type.equals("post") || req_type.equals("put")) {
             req_string += "Content-Type: application/json\r\n";
-            // test
-            String data;
             
+            // test            
             JSONObject data_json = new JSONObject();
             data_json.put("key", "value");
-            data = data_json.toString(2);
+            String data = data_json.toString(2);
             req_string += "Content-Length: " + data.length() + "\r\n";
             
             req_string += "\n" + data + "\r\n";
         }
         
         req_string += "Connection: close\r\n";
-        req_string += "\r\n"; // Empty line indicates end of request header
+        req_string += "\r\n";
         
+        return req_string;
+    }
+    
+    public void get_response(String base, String request, String request_type) throws UnknownHostException, IOException {
+        s = new Socket(InetAddress.getByName(base), port);
         PrintWriter pw = new PrintWriter(s.getOutputStream());
-        pw.print(req_string);
+        pw.print(request);
         pw.flush();
         
         BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -92,9 +81,9 @@ public class Curl {
         }
         
         if (verbose) {
-            System.out.println("connecting to " + website + "\n");
-            System.out.println("> Sending request " + req.toUpperCase() + " /" + req + " HTTP/1.1");
-            System.out.println("> Host: " + website);
+            System.out.println("connecting to " + base + "\n");
+            System.out.println("> Sending request " + request_type.toUpperCase() + " /" + request_type + " HTTP/1.1");
+            System.out.println("> Host: " + base);
             System.out.println("> Accept: */*\n");
             for (String r : resp) {
                 System.out.println("< " + r);
@@ -103,7 +92,30 @@ public class Curl {
         
         System.out.println(header);
         br.close();
-        
-        s.close();
     }
+    
+    public void get(String url) throws UnknownHostException, IOException {
+        String base = get_url_base(url);
+        String request = build_request("get", base);
+        get_response(base, request, "get");
+    }
+    
+    public void delete(String url) throws UnknownHostException, IOException {
+        String base = get_url_base(url);
+        String request = build_request("delete", base);
+        get_response(base, request, "delete");
+    }
+    
+    public void post(String url) throws UnknownHostException, IOException {
+        String base = get_url_base(url);
+        String request = build_request("post", base);
+        get_response(base, request, "post");
+    }
+    
+    public void put(String url) throws UnknownHostException, IOException {
+        String base = get_url_base(url);
+        String request = build_request("put", base);
+        get_response(base, request, "put");
+    }
+    
 }
