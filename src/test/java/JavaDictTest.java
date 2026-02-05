@@ -1,5 +1,10 @@
 
 import java.util.Arrays;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.example.challenges.JavaDict;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -79,5 +84,29 @@ public class JavaDictTest {
         JavaDict marks = new JavaDict(j.get("12th marks"));
         Assert.assertEquals(95, marks.get("Maths"));
         System.out.println();
+    }
+    
+    @Test
+    public void test_cli() throws ParseException {
+        Options options = new Options();
+        options.addOption("X", true, "HTTP Request type");
+        options.addOption("d", true, "Data");
+        options.addOption("H", true, "Content-Type of data");
+        
+        CommandLineParser parser = new DefaultParser();
+        
+        String req_type = "", data = "", content_type = "";
+        String[] args = {"-X", "GET", "-d", "sahana", "-H", "type"};
+        System.out.println(args.toString());
+
+        CommandLine cmd_line = parser.parse(options, args);
+        req_type = cmd_line.hasOption("X") ? cmd_line.getOptionValue("X") : "GET";
+        data = cmd_line.hasOption("d") ? cmd_line.getOptionValue("d") : "";
+        content_type = cmd_line.hasOption("H") ? cmd_line.getOptionValue("H") : "Content-type: application/x-www-form-urlencoded";
+
+        
+        System.out.println(req_type);
+        System.out.println(data);
+        System.out.println(content_type);
     }
 }

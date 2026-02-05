@@ -10,21 +10,20 @@ import java.util.ArrayList;
 import java.util.Map;
 import org.json.JSONObject;
 
-
 /**
  *
  * @author bhats
  */
 public class Curl {
-    public int port = 80;
-    public Boolean verbose = false;
-    public Socket s;
+    private int port = 80;
+    private Boolean verbose = false;
+    private Socket s;
     
-    public Curl() {
-        
+    public Curl(boolean verbose) {
+        this.verbose = verbose;
     }
     
-    public String get_url_base(String url) {
+    private String get_url_base(String url) {
         String[] url_parts = url.split("/");
         String website = url_parts[url_parts.length - 2];
         String[] website_parts = website.split(":");
@@ -36,20 +35,21 @@ public class Curl {
         return website;
     }
     
-    public String build_request(String req_type, String base) {
+    private String build_request(String req_type, String base, String data, String content_type) {
         String req_string = req_type.toUpperCase() + " /" + req_type + " HTTP/1.1\r\n";
         req_string += "Host: " + base + "\r\n";
         
         if (req_type.equals("post") || req_type.equals("put")) {
-            req_string += "Content-Type: application/json\r\n";
+            // req_string += "Content-Type: application/json\r\n";
+            req_string += content_type + "\r\n";
             
             // test            
-            JSONObject data_json = new JSONObject();
-            data_json.put("key", "value");
-            String data = data_json.toString(2);
-            req_string += "Content-Length: " + data.length() + "\r\n";
+            JSONObject data_json = new JSONObject(data);
+            // data_json.put("key", "value");
+            String d = data_json.toString(2);
+            req_string += "Content-Length: " + d.length() + "\r\n";
             
-            req_string += "\n" + data + "\r\n";
+            req_string += "\n" + d + "\r\n";
         }
         
         req_string += "Connection: close\r\n";
@@ -58,7 +58,7 @@ public class Curl {
         return req_string;
     }
     
-    public void get_response(String base, String request, String request_type) throws UnknownHostException, IOException {
+    private JSONObject get_response(String base, String request, String request_type) throws UnknownHostException, IOException {
         s = new Socket(InetAddress.getByName(base), port);
         PrintWriter pw = new PrintWriter(s.getOutputStream());
         pw.print(request);
@@ -73,8 +73,10 @@ public class Curl {
             if (t.contains("{")) {
                 header_found = true;
                 String h;
-                while((h = br.readLine()) != null)
+                while((h = br.readLine()) != null) {
+                    if (h.contains("HTTP/1.1")) break;
                     header += h + "\n";
+                }
             }
             if (header_found) break;
             resp.add(t);
@@ -88,34 +90,34 @@ public class Curl {
             for (String r : resp) {
                 System.out.println("< " + r);
             }
+            System.out.println(header);
         }
-        
-        System.out.println(header);
         br.close();
+        return new JSONObject(header);
     }
     
-    public void get(String url) throws UnknownHostException, IOException {
+    public JSONObject get(String url, String data, String content_type) throws UnknownHostException, IOException {
         String base = get_url_base(url);
-        String request = build_request("get", base);
-        get_response(base, request, "get");
+        String request = build_request("get", base, data, content_type);
+        return get_response(base, request, "get");
     }
     
-    public void delete(String url) throws UnknownHostException, IOException {
+    public JSONObject delete(String url, String data, String content_type) throws UnknownHostException, IOException {
         String base = get_url_base(url);
-        String request = build_request("delete", base);
-        get_response(base, request, "delete");
+        String request = build_request("delete", base, data, content_type);
+        return get_response(base, request, "delete");
     }
     
-    public void post(String url) throws UnknownHostException, IOException {
+    public JSONObject post(String url, String data, String content_type) throws UnknownHostException, IOException {
         String base = get_url_base(url);
-        String request = build_request("post", base);
-        get_response(base, request, "post");
+        String request = build_request("post", base, data, content_type);
+        return get_response(base, request, "post");
     }
     
-    public void put(String url) throws UnknownHostException, IOException {
+    public JSONObject put(String url, String data, String content_type) throws UnknownHostException, IOException {
         String base = get_url_base(url);
-        String request = build_request("put", base);
-        get_response(base, request, "put");
+        String request = build_request("put", base, data, content_type);
+        return get_response(base, request, "put");
     }
     
 }
